@@ -7,5 +7,6 @@ data class Anime(
     val type: String,
     val episodes: String,
     val score: String,
-    val rank: String
+    val rank: String,
+    val isFavorite: Boolean = false
 )

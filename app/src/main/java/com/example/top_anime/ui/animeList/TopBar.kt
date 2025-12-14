@@ -13,7 +13,9 @@ import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnimeTopBar() {
+fun AnimeTopBar(
+    onFavoritesClick: () -> Unit = {}
+) {
     TopAppBar(
         title = {
             Text(
@@ -25,7 +27,7 @@ fun AnimeTopBar() {
             IconButton(onClick = {}) {
                 Icon(Icons.Default.Search, contentDescription = "Search")
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = onFavoritesClick) {
                 Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorite")
             }
         }
