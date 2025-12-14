@@ -22,12 +22,10 @@ fun FavoritesScreen(
     onBackClick: () -> Unit = {},
     viewModel: FavoritesViewModel = koinViewModel()
 ) {
-    val favoriteAnimeList by viewModel.favoriteAnimeList.collectAsState()
-    val showDialog by viewModel.showDialog.collectAsState()
-    val pendingAnimeId by viewModel.pendingAnimeId.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     
     ConfirmationDialog(
-        showDialog = showDialog && pendingAnimeId != null,
+        showDialog = uiState.showDialog && uiState.pendingAnimeId != null,
         title = "Batalkan Favorit",
         message = "Apakah Anda yakin ingin membatalkan favorit anime ini?",
         onConfirm = {
@@ -50,7 +48,7 @@ fun FavoritesScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(padding)
         ) {
-            items(favoriteAnimeList) { anime ->
+            items(uiState.favoriteAnimeList) { anime ->
                 AnimeCard(
                     anime = anime,
                     onFavoriteClick = { animeId, _ ->

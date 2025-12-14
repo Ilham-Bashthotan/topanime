@@ -6,10 +6,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,12 +28,11 @@ fun AnimeListScreen(
     onNavigateToFavorites: () -> Unit = {},
     viewModel: AnimeListViewModel = koinViewModel()
 ) {
-    val animeList by viewModel.animeList.collectAsState()
-    val showDialog by viewModel.showDialog.collectAsState()
-    val pendingAnimeId by viewModel.pendingAnimeId.collectAsState()
-    
+    val uiState by viewModel.uiState.collectAsState()
+    val showSearchState = remember { mutableStateOf(false) }
+
     ConfirmationDialog(
-        showDialog = showDialog && pendingAnimeId != null,
+        showDialog = uiState.showDialog && uiState.pendingAnimeId != null,
         title = "Batalkan Favorit",
         message = "Apakah Anda yakin ingin membatalkan favorit anime ini?",
         onConfirm = {
@@ -37,11 +42,40 @@ fun AnimeListScreen(
             viewModel.hideConfirmDialog()
         }
     )
+
+    if (showSearchState.value) {
+        AlertDialog(
+            onDismissRequest = { showSearchState.value = false },
+            title = { Text("Cari Anime") },
+            text = {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.updateSearchText(it) },
+                    singleLine = true,
+                    label = { Text("Nama anime") }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.search()
+                    showSearchState.value = false
+                }) {
+                    Text("Cari")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSearchState.value = false }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
     
     Scaffold(
         topBar = { 
             AnimeTopBar(
-                onFavoritesClick = onNavigateToFavorites
+                onFavoritesClick = onNavigateToFavorites,
+                onSearchClick = { showSearchState.value = true }
             ) 
         }
     ) { padding ->
@@ -52,7 +86,7 @@ fun AnimeListScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.padding(padding)
         ) {
-            items(animeList) { anime ->
+            items(uiState.animeList) { anime ->
                 AnimeCard(
                     anime = anime,
                     onFavoriteClick = { animeId, isFavorite ->
@@ -68,7 +102,6 @@ fun AnimeListScreen(
     }
 }
 
-// preview
 @Preview(showBackground = true)
 @Composable
 fun AnimeListScreenPreview() {

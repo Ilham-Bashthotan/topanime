@@ -7,4 +7,5 @@ interface AnimeRepository {
     fun getTopAnimeList(): Flow<List<Anime>>
     fun getFavoriteAnimeList(): Flow<List<Anime>>
     fun toggleFavorite(animeId: String)
+    fun setSearchQuery(query: String)
 }

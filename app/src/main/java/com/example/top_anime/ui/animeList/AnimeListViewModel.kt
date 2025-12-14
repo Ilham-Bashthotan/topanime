@@ -2,47 +2,56 @@ package com.example.top_anime.ui.animeList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.top_anime.common.model.Anime
 import com.example.top_anime.data.repository.AnimeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class AnimeListViewModel(
     private val repository: AnimeRepository
 ) : ViewModel() {
 
-    val animeList: StateFlow<List<Anime>> = repository.getTopAnimeList()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
-    
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
-    
-    private val _pendingAnimeId = MutableStateFlow<String?>(null)
-    val pendingAnimeId: StateFlow<String?> = _pendingAnimeId.asStateFlow()
-    
+    private val _uiState = MutableStateFlow(AnimeListUiState())
+    val uiState: StateFlow<AnimeListUiState> = _uiState
+
+    init {
+        viewModelScope.launch {
+            repository.getTopAnimeList().collect { list ->
+                _uiState.update { it.copy(animeList = list) }
+            }
+        }
+    }
+
+    fun search(query: String) {
+        repository.setSearchQuery(query)
+    }
+
     fun toggleFavorite(animeId: String) {
         repository.toggleFavorite(animeId)
     }
     
+    fun updateSearchText(text: String) {
+        _uiState.update { it.copy(searchQuery = text) }
+    }
+
     fun showConfirmDialog(animeId: String) {
-        _pendingAnimeId.value = animeId
-        _showDialog.value = true
+        _uiState.update { it.copy(pendingAnimeId = animeId, showDialog = true) }
     }
-    
+
     fun hideConfirmDialog() {
-        _showDialog.value = false
-        _pendingAnimeId.value = null
+        _uiState.update { it.copy(showDialog = false, pendingAnimeId = null) }
+    }
+
+    fun confirmToggleFavorite() {
+        val id = _uiState.value.pendingAnimeId
+        if (id != null) {
+            toggleFavorite(id)
+        }
+        hideConfirmDialog()
     }
     
-    fun confirmToggleFavorite() {
-        _pendingAnimeId.value?.let { toggleFavorite(it) }
-        hideConfirmDialog()
+    fun search() {
+        repository.setSearchQuery(_uiState.value.searchQuery)
     }
 }

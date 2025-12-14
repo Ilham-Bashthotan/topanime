@@ -79,4 +79,9 @@ dependencies {
     implementation("io.insert-koin:koin-compose-viewmodel:4.1.0")
     implementation("io.insert-koin:koin-compose-viewmodel-navigation:4.1.0")
 
+    // networking - Retrofit + Gson
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }
