@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,7 +33,7 @@ fun AnimeListScreen(
     val showSearchState = remember { mutableStateOf(false) }
 
     ConfirmationDialog(
-        showDialog = uiState.showDialog && uiState.pendingAnimeId != null,
+        showDialog = uiState.showDialog && uiState.pendingAnime != null,
         title = "Batalkan Favorit",
         message = "Apakah Anda yakin ingin membatalkan favorit anime ini?",
         onConfirm = {
@@ -56,7 +57,7 @@ fun AnimeListScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = {
+                Button(onClick = {
                     viewModel.search()
                     showSearchState.value = false
                 }) {
@@ -89,11 +90,11 @@ fun AnimeListScreen(
             items(uiState.animeList) { anime ->
                 AnimeCard(
                     anime = anime,
-                    onFavoriteClick = { animeId, isFavorite ->
+                    onFavoriteClick = { _, isFavorite ->
                         if (isFavorite) {
-                            viewModel.showConfirmDialog(animeId)
+                            viewModel.showConfirmDialog(anime)
                         } else {
-                            viewModel.toggleFavorite(animeId)
+                            viewModel.toggleFavorite(anime)
                         }
                     }
                 )

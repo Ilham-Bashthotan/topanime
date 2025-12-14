@@ -5,6 +5,6 @@ import com.example.top_anime.common.model.Anime
 data class AnimeListUiState(
     val animeList: List<Anime> = emptyList(),
     val showDialog: Boolean = false,
-    val pendingAnimeId: String? = null,
+    val pendingAnime: Anime? = null,
     val searchQuery: String = ""
 )

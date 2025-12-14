@@ -1,6 +1,9 @@
 package com.example.top_anime.data.repository
 
 import com.example.top_anime.common.model.Anime
+import com.example.top_anime.data.local.FavoriteAnimeDao
+import com.example.top_anime.data.local.toDomain
+import com.example.top_anime.data.local.toEntity
 import com.example.top_anime.data.remote.response.TopAnimeResponse
 import com.example.top_anime.data.remote.service.AnimeService
 import kotlinx.coroutines.flow.Flow
@@ -8,14 +11,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class AnimeRepositoryImpl(
-    private val service: AnimeService
+    private val service: AnimeService,
+    private val favoriteDao: FavoriteAnimeDao
 ) : AnimeRepository {
 
-    private val favoriteIds = MutableStateFlow<Set<String>>(emptySet())
-    private val cachedTopList = MutableStateFlow<List<Anime>>(emptyList())
-    private val cachedAllById = MutableStateFlow<Map<String, Anime>>(emptyMap())
     private val searchQuery = MutableStateFlow("")
 
     override fun getTopAnimeList(): Flow<List<Anime>> {
@@ -35,30 +37,27 @@ class AnimeRepositoryImpl(
                         isFavorite = false
                     )
                 }
-                cachedTopList.value = baseList
-                cachedAllById.value = cachedAllById.value + baseList.associateBy { it.id }
                 emit(baseList)
             }
-        }.combine(favoriteIds) { list, favIds ->
+        }.combine(favoriteDao.getAllFavorites()) { list, favorites ->
+            val favIds = favorites.map { it.id }.toSet()
             list.map { it.copy(isFavorite = favIds.contains(it.id)) }
         }
     }
 
     override fun getFavoriteAnimeList(): Flow<List<Anime>> {
-        // Derive favorites from accumulated cache across queries
-        return combine(cachedAllById, favoriteIds) { cacheMap, favIds ->
-            favIds.mapNotNull { id -> cacheMap[id]?.copy(isFavorite = true) }
+        return favoriteDao.getAllFavorites().map { entities ->
+            entities.map { it.toDomain() }
         }
     }
 
-    override fun toggleFavorite(animeId: String) {
-        val currentFavorites = favoriteIds.value.toMutableSet()
-        if (currentFavorites.contains(animeId)) {
-            currentFavorites.remove(animeId)
+    override suspend fun toggleFavorite(anime: Anime) {
+        val existing = favoriteDao.getFavoriteById(anime.id)
+        if (existing != null) {
+            favoriteDao.deleteFavoriteById(anime.id)
         } else {
-            currentFavorites.add(animeId)
+            favoriteDao.insertFavorite(anime.toEntity())
         }
-        favoriteIds.value = currentFavorites
     }
 
     override fun setSearchQuery(query: String) {

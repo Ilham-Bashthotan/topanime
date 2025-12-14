@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface AnimeRepository {
     fun getTopAnimeList(): Flow<List<Anime>>
     fun getFavoriteAnimeList(): Flow<List<Anime>>
-    fun toggleFavorite(animeId: String)
+    suspend fun toggleFavorite(anime: Anime)
     fun setSearchQuery(query: String)
 }

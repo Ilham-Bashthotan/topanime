@@ -2,6 +2,7 @@ package com.example.top_anime.ui.animeList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.top_anime.common.model.Anime
 import com.example.top_anime.data.repository.AnimeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,26 +28,28 @@ class AnimeListViewModel(
         repository.setSearchQuery(query)
     }
 
-    fun toggleFavorite(animeId: String) {
-        repository.toggleFavorite(animeId)
+    fun toggleFavorite(anime: Anime) {
+        viewModelScope.launch {
+            repository.toggleFavorite(anime)
+        }
     }
     
     fun updateSearchText(text: String) {
         _uiState.update { it.copy(searchQuery = text) }
     }
 
-    fun showConfirmDialog(animeId: String) {
-        _uiState.update { it.copy(pendingAnimeId = animeId, showDialog = true) }
+    fun showConfirmDialog(anime: Anime) {
+        _uiState.update { it.copy(pendingAnime = anime, showDialog = true) }
     }
 
     fun hideConfirmDialog() {
-        _uiState.update { it.copy(showDialog = false, pendingAnimeId = null) }
+        _uiState.update { it.copy(showDialog = false, pendingAnime = null) }
     }
 
     fun confirmToggleFavorite() {
-        val id = _uiState.value.pendingAnimeId
-        if (id != null) {
-            toggleFavorite(id)
+        val anime = _uiState.value.pendingAnime
+        if (anime != null) {
+            toggleFavorite(anime)
         }
         hideConfirmDialog()
     }

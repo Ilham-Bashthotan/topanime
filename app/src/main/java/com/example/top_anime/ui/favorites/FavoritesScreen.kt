@@ -25,7 +25,7 @@ fun FavoritesScreen(
     val uiState by viewModel.uiState.collectAsState()
     
     ConfirmationDialog(
-        showDialog = uiState.showDialog && uiState.pendingAnimeId != null,
+        showDialog = uiState.showDialog && uiState.pendingAnime != null,
         title = "Batalkan Favorit",
         message = "Apakah Anda yakin ingin membatalkan favorit anime ini?",
         onConfirm = {
@@ -51,8 +51,8 @@ fun FavoritesScreen(
             items(uiState.favoriteAnimeList) { anime ->
                 AnimeCard(
                     anime = anime,
-                    onFavoriteClick = { animeId, _ ->
-                        viewModel.showConfirmDialog(animeId)
+                    onFavoriteClick = { _, _ ->
+                        viewModel.showConfirmDialog(anime)
                     }
                 )
             }

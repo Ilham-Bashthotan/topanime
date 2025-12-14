@@ -2,6 +2,7 @@ package com.example.top_anime.ui.favorites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.top_anime.common.model.Anime
 import com.example.top_anime.data.repository.AnimeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,22 +24,24 @@ class FavoritesViewModel(
         }
     }
 
-    fun removeFavorite(animeId: String) {
-        repository.toggleFavorite(animeId)
+    fun removeFavorite(anime: Anime) {
+        viewModelScope.launch {
+            repository.toggleFavorite(anime)
+        }
     }
 
-    fun showConfirmDialog(animeId: String) {
-        _uiState.update { it.copy(pendingAnimeId = animeId, showDialog = true) }
+    fun showConfirmDialog(anime: Anime) {
+        _uiState.update { it.copy(pendingAnime = anime, showDialog = true) }
     }
 
     fun hideConfirmDialog() {
-        _uiState.update { it.copy(showDialog = false, pendingAnimeId = null) }
+        _uiState.update { it.copy(showDialog = false, pendingAnime = null) }
     }
 
     fun confirmRemoveFavorite() {
-        val id = _uiState.value.pendingAnimeId
-        if (id != null) {
-            removeFavorite(id)
+        val anime = _uiState.value.pendingAnime
+        if (anime != null) {
+            removeFavorite(anime)
         }
         hideConfirmDialog()
     }
