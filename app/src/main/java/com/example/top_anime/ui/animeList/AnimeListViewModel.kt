@@ -24,10 +24,6 @@ class AnimeListViewModel(
         }
     }
 
-    fun search(query: String) {
-        repository.setSearchQuery(query)
-    }
-
     fun toggleFavorite(anime: Anime) {
         viewModelScope.launch {
             repository.toggleFavorite(anime)

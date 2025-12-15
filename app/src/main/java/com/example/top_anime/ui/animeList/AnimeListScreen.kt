@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.top_anime.ui.components.AnimeCard
 import com.example.top_anime.ui.components.ConfirmationDialog
@@ -101,10 +100,4 @@ fun AnimeListScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AnimeListScreenPreview() {
-    AnimeListScreen()
 }

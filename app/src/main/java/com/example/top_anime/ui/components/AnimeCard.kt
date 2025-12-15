@@ -34,14 +34,28 @@ fun AnimeCard(
     ) {
         Column {
             Box {
-                AsyncImage(
-                    model = anime.imageUrl,
-                    contentDescription = anime.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .height(180.dp)
-                        .fillMaxWidth()
-                )
+                if (anime.imageUrl.isBlank()) {
+                    // Placeholder ketika tidak ada gambar (preview aman)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No Image",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                } else {
+                    AsyncImage(
+                        model = anime.imageUrl,
+                        contentDescription = anime.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
 
                 FavoriteButton(
                     isFavorite = anime.isFavorite,
@@ -84,7 +98,7 @@ fun AnimeCard(
 @Preview
 @Composable
 fun AnimeCardPreview() {
-    val anime: Anime = Anime(
+    val anime = Anime(
         id = "1",
         title = "Naruto",
         imageUrl = "",
