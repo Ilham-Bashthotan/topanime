@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.top_anime.common.model.Anime
+import com.example.top_anime.ui.theme.TopanimeTheme
 
 @Composable
 fun AnimeCard(
@@ -30,7 +32,10 @@ fun AnimeCard(
 ) {
     Card(
         modifier = Modifier.graphicsLayer { clip = false },
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column {
             Box {
@@ -44,7 +49,8 @@ fun AnimeCard(
                     ) {
                         Text(
                             text = "No Image",
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 } else {
@@ -73,13 +79,20 @@ fun AnimeCard(
                     text = anime.title,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text("Type  ${anime.type}")
-                Text("Episodes  ${anime.episodes}")
+                Text(
+                    "Type  ${anime.type}",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "Episodes  ${anime.episodes}",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -87,8 +100,16 @@ fun AnimeCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Score ${anime.score}", fontWeight = FontWeight.SemiBold)
-                    Text("Rank ${anime.rank}", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "Score ${anime.score}",
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        "Rank ${anime.rank}",
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
@@ -98,14 +119,16 @@ fun AnimeCard(
 @Preview
 @Composable
 fun AnimeCardPreview() {
-    val anime = Anime(
-        id = "1",
-        title = "Naruto",
-        imageUrl = "",
-        type = "TV",
-        episodes = "35",
-        score = "9",
-        rank = "102"
-    )
-    AnimeCard(anime)
+    TopanimeTheme {
+        val anime = Anime(
+            id = "1",
+            title = "Naruto",
+            imageUrl = "",
+            type = "TV",
+            episodes = "220",
+            score = "8.5",
+            rank = "102"
+        )
+        AnimeCard(anime)
+    }
 }

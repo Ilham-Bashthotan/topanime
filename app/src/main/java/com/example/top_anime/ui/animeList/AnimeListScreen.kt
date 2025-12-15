@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,7 +47,12 @@ fun AnimeListScreen(
     if (showSearchState.value) {
         AlertDialog(
             onDismissRequest = { showSearchState.value = false },
-            title = { Text("Cari Anime") },
+            title = { 
+                Text(
+                    "Cari Anime",
+                    color = MaterialTheme.colorScheme.onSurface
+                ) 
+            },
             text = {
                 OutlinedTextField(
                     value = uiState.searchQuery,
@@ -56,10 +62,15 @@ fun AnimeListScreen(
                 )
             },
             confirmButton = {
-                Button(onClick = {
-                    viewModel.search()
-                    showSearchState.value = false
-                }) {
+                Button(
+                    onClick = {
+                        viewModel.search()
+                        showSearchState.value = false
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
                     Text("Cari")
                 }
             },
