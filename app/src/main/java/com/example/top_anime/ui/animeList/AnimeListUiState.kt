@@ -6,5 +6,7 @@ data class AnimeListUiState(
     val animeList: List<Anime> = emptyList(),
     val showDialog: Boolean = false,
     val pendingAnime: Anime? = null,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )

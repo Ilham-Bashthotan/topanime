@@ -6,6 +6,7 @@ import com.example.top_anime.common.model.Anime
 import com.example.top_anime.data.repository.AnimeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,40 +18,89 @@ class AnimeListViewModel(
     val uiState: StateFlow<AnimeListUiState> = _uiState
 
     init {
+        observeTopAnime()
+    }
+
+    private fun observeTopAnime() {
         viewModelScope.launch {
-            repository.getTopAnimeList().collect { list ->
-                _uiState.update { it.copy(animeList = list) }
+            _uiState.update { state ->
+                state.copy(isLoading = true)
+            }
+
+            try {
+                repository.getTopAnimeList()
+                    .collectLatest { list ->
+                        _uiState.update { state ->
+                            state.copy(
+                                animeList = list,
+                                isLoading = false,
+                                errorMessage = null
+                            )
+                        }
+                    }
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = e.message
+                    )
+                }
             }
         }
     }
 
     fun toggleFavorite(anime: Anime) {
         viewModelScope.launch {
-            repository.toggleFavorite(anime)
+            try {
+                repository.toggleFavorite(anime)
+            } catch (e: Exception) {
+                setError(e.message)
+            }
         }
     }
-    
+
     fun updateSearchText(text: String) {
-        _uiState.update { it.copy(searchQuery = text) }
+        _uiState.update { state ->
+            state.copy(searchQuery = text)
+        }
+    }
+
+    fun search() {
+        try {
+            repository.setSearchQuery(_uiState.value.searchQuery)
+        } catch (e: Exception) {
+            setError(e.message)
+        }
     }
 
     fun showConfirmDialog(anime: Anime) {
-        _uiState.update { it.copy(pendingAnime = anime, showDialog = true) }
+        _uiState.update { state ->
+            state.copy(
+                pendingAnime = anime,
+                showDialog = true
+            )
+        }
     }
 
     fun hideConfirmDialog() {
-        _uiState.update { it.copy(showDialog = false, pendingAnime = null) }
+        _uiState.update { state ->
+            state.copy(
+                showDialog = false,
+                pendingAnime = null
+            )
+        }
     }
 
     fun confirmToggleFavorite() {
-        val anime = _uiState.value.pendingAnime
-        if (anime != null) {
+        _uiState.value.pendingAnime?.let { anime ->
             toggleFavorite(anime)
         }
         hideConfirmDialog()
     }
-    
-    fun search() {
-        repository.setSearchQuery(_uiState.value.searchQuery)
+
+    private fun setError(message: String?) {
+        _uiState.update { state ->
+            state.copy(errorMessage = message)
+        }
     }
 }
